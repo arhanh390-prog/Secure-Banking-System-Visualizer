@@ -1,0 +1,5 @@
+streamlit
+graphviz
+cryptography
+pandas
+pydeck
