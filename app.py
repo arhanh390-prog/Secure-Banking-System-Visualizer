@@ -252,7 +252,7 @@ elif section == "🔒 Security Layers":
         st.success(f"✔️ Access GRANTED for `{role}` to `{action}`.")
     else:
         st.error(f"❌ Access DENIED. {reason or 'Policy does not allow this action.'}")
-        st.pydeck_chart(deck)
+        # st.pydeck_chart(deck) # <-- REMOVED THIS LINE - 'deck' is not defined here.
 
     st.markdown("---")
     
