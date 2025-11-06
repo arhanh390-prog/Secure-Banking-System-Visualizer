@@ -1,5 +1,6 @@
 streamlit
 graphviz
-cryptography
+plotly
 pandas
+cryptography
 pydeck
