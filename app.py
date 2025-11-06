@@ -425,7 +425,7 @@ elif section == "📊 Risk Dashboard":
         events = ["Failed Login","Suspicious Transfer","Anomalous Login Location","Malware Detected","Phishing Attempt"]
         alert = {
             "id": f"A-{random.randint(10000,99999)}", "time": now(),
-            "source_ip": f"{random.randint(1_223)}.{random.randint(0_255)}.{random.randint(0_255)}.{random.randint(0_255)}",
+            "source_ip": f"{random.randint(1, 223)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
             "event": random.choice(events), "severity": random.choices(["Low","Medium","High"], weights=(5,3,2))[0]
         }
         if alert["event"] == "Phishing Attempt":
