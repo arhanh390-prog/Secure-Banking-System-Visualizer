@@ -572,7 +572,7 @@ elif section == "🚀 Future Banking Tech":
 
     with f_cols[0]:
         st.info("🪪 **Decentralized Identity (DID)**")
-        st.markdown("Using blockchain, this would allow *you* to own your identity data, not the bank. You would grant the bank permission to verify specific facts (e.g., "Are you over 18?") without handing over your full ID.")
+        st.markdown("""Using blockchain, this would allow *you* to own your identity data, not the bank. You would grant the bank permission to verify specific facts (e.g., "Are you over 18?") without handing over your full ID.""")
 
     with f_cols[1]:
         st.info("🔗 **Confidential Computing**")
