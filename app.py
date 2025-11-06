@@ -67,6 +67,25 @@ def generate_transaction(id, behavioral_anomaly=False):
     tx["risk_level"] = "Low" if tx["risk_score"] < 30 else ("Medium" if tx["risk_score"] < 60 else "High")
     return tx
 
+# (NEW) Moved gen_alert() function to the top-level helper section
+def gen_alert(i):
+    events = ["Failed Login","Suspicious Transfer","Anomalous Login Location","Malware Detected","Phishing Attempt"]
+    alert = {
+        "id": f"A-{random.randint(10000,99999)}", "time": now(),
+        "source_ip": f"{random.randint(1, 223)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
+        "event": random.choice(events), "severity": random.choices(["Low","Medium","High"], weights=(5,3,2))[0]
+    }
+    if alert["event"] == "Phishing Attempt":
+        alert["severity"] = "High"
+        alert["mitigation"] = "Block domain. Remind user ONLY use official 'sbi.bank.in' domain."
+    elif alert["severity"] == "High":
+        alert["mitigation"] = "Block IP, force password reset, escalate to SOC"
+    elif alert["severity"] == "Medium":
+        alert["mitigation"] = "Require re-authentication, monitor for 1h"
+    else:
+        alert["mitigation"] = "Log and monitor"
+    return alert
+
 # ----------------------------
 # Section: Overview
 # ----------------------------
@@ -233,7 +252,7 @@ elif section == "🔒 Security Layers":
         st.success(f"✔️ Access GRANTED for `{role}` to `{action}`.")
     else:
         st.error(f"❌ Access DENIED. {reason or 'Policy does not allow this action.'}")
-        st.warning("An access denial is logged in the SIEM for review.")
+        st.pydeck_chart(deck)
 
     st.markdown("---")
     
@@ -420,25 +439,8 @@ elif section == "📊 Risk Dashboard":
                 else:
                     st.info(f"**[{alert['severity']}]** {alert['event']} from {alert['source_ip']}\n> {alert['mitigation']}")
 
-    # (Helper function for SIEM)
-    def gen_alert(i):
-        events = ["Failed Login","Suspicious Transfer","Anomalous Login Location","Malware Detected","Phishing Attempt"]
-        alert = {
-            "id": f"A-{random.randint(10000,99999)}", "time": now(),
-            "source_ip": f"{random.randint(1, 223)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
-            "event": random.choice(events), "severity": random.choices(["Low","Medium","High"], weights=(5,3,2))[0]
-        }
-        if alert["event"] == "Phishing Attempt":
-            alert["severity"] = "High"
-            alert["mitigation"] = "Block domain. Remind user ONLY use official 'sbi.bank.in' domain."
-        elif alert["severity"] == "High":
-            alert["mitigation"] = "Block IP, force password reset, escalate to SOC"
-        elif alert["severity"] == "Medium":
-            alert["mitigation"] = "Require re-authentication, monitor for 1h"
-        else:
-            alert["mitigation"] = "Log and monitor"
-        return alert
-
+    # (REMOVED) gen_alert() function was previously defined here
+    
 # ----------------------------
 # Section: 🌎 Global Comparison
 # (Formerly Global Security Comparison)
@@ -526,7 +528,8 @@ elif section == "🧾 Compliance & Data Privacy":
         df_emp = pd.DataFrame(emp_data)
         
         st.markdown("**View as Teller (Masked):**")
-        st.dataframe(df_emp.style.hide(subset=["Salary_LPA"], axis=1))
+        # (FIXED) Replaced deprecated .style.hide() with modern column_config
+        st.dataframe(df_emp, column_config={"Salary_LPA": None})
         
         st.markdown("**View as HR Employee (Unmasked):**")
         st.dataframe(df_emp)
