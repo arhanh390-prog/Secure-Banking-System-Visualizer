@@ -91,7 +91,7 @@ if section == "Overview":
 # (Formerly Network & DR Simulation)
 # ----------------------------
 elif section == "🏦 Bank Architecture":
-    st.header("The Bank's "Nervous System": CBS & DR")
+    st.header('The Bank's "Nervous System": CBS & DR')
     st.markdown("""
     This shows a simplified **Core Banking System (CBS)** architecture.
     - **Branches** connect via a private, encrypted **Wide Area Network (WAN/MPLS)**, forming a "VPN Tunnel".
