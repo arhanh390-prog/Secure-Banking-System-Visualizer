@@ -4,6 +4,7 @@ import time
 import random
 import io
 import re
+import hashlib
 from datetime import datetime
 import pydeck as pdk
 import plotly.express as px
@@ -19,19 +20,20 @@ from cryptography.hazmat.backends import default_backend
 st.set_page_config(page_title="Secure Banking Visualizer (Advanced)", layout="wide", page_icon="🏦")
 
 st.title("🏦 Secure Banking System Visualizer — Advanced")
-st.markdown("Interactive demo: network, encryption, threat simulation, RBAC, and global comparisons.")
+st.markdown("An interactive demo of banking architecture, security layers, threat simulation, and risk management.")
 
 # ----------------------------
-# Sidebar navigation
+# Sidebar navigation (NEW STORYLINE)
 # ----------------------------
-section = st.sidebar.selectbox("Navigate", [
+section = st.sidebar.selectbox("Navigate the Storyline", [
     "Overview",
-    "Network & DR Simulation",
-    "RBAC, Insider Threat & DLP",
-    "Transaction Risk Scoring",
-    "Threat Feed & SIEM",
-    "Encryption & Digital Signature",
-    "Global Security Comparison",
+    "🏦 Bank Architecture",
+    "🔒 Security Layers",
+    "🧠 Threat Simulation",
+    "📊 Risk Dashboard",
+    "🌎 Global Comparison",
+    "🧾 Compliance & Data Privacy",
+    "🚀 Future Banking Tech"
 ])
 
 # ----------------------------
@@ -41,7 +43,7 @@ def now():
     return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
 def generate_transaction(id, behavioral_anomaly=False):
-    # Simulated transaction with random features that influence risk
+    # (Existing helper function - unchanged)
     locations = ["Mumbai", "Delhi", "Chennai", "Bengaluru", "London", "New York", "Dubai", "Singapore"]
     tx = {
         "tx_id": f"TX-{id:05d}",
@@ -52,20 +54,15 @@ def generate_transaction(id, behavioral_anomaly=False):
         "origin": random.choice(locations),
         "destination": random.choice(locations),
         "failed_logins": random.randint(0,5),
-        "device_known": random.choice([True, True, True, False]), # more likely known
+        "device_known": random.choice([True, True, True, False]),
         "behavioral_anomaly": behavioral_anomaly
     }
-    # Risk score heuristic (simulated)
     score = 0
     if tx["amount"] > 50000: score += 40
     if tx["origin"] != tx["destination"]: score += 10
     if not tx["device_known"]: score += 20
     if tx["failed_logins"] > 1: score += 15
-    
-    # **NEW FEATURE from lecture notes**
     if tx["behavioral_anomaly"]: score += 25
-
-    # clamp
     tx["risk_score"] = min(100, score + random.randint(-5,10))
     tx["risk_level"] = "Low" if tx["risk_score"] < 30 else ("Medium" if tx["risk_score"] < 60 else "High")
     return tx
@@ -74,46 +71,54 @@ def generate_transaction(id, behavioral_anomaly=False):
 # Section: Overview
 # ----------------------------
 if section == "Overview":
-    st.header("Overview & Learning Goals")
+    st.header("Welcome to the Secure Banking Visualizer")
     st.markdown("""
-    This advanced demo covers:
-    - **Network Topology:** Visualizing the Core Banking System (CBS) and branch connectivity (WAN/MPLS).
-    - **Disaster Recovery:** Simulating a real-time failover from a Primary to a DR data center.
-    - **Insider Threats:** Demonstrating Role-Based Access Control (RBAC) and Data Loss Prevention (DLP).
-    - **AI-Driven Risk:** Simulating a fraud detection engine, now including behavioral biometrics.
-    - **Live SIEM:** A mock Security Operations Center (SOC) dashboard, now detecting phishing attempts.
-    - **Cryptography:** Hands-on demo of symmetric (Fernet) and asymmetric (RSA) encryption, with notes on the future Quantum Threat.
-    - **Global Benchmarking:** Comparing Indian vs. Global bank security postures.
+    This application tells the story of modern cybersecurity in banking, broken down into interactive modules. 
+    
+    Use the sidebar to navigate through the storyline:
+    - **🏦 Bank Architecture:** Understand the "nervous system" of a bank (Core Banking System) and its resilience (Disaster Recovery).
+    - **🔒 Security Layers:** Explore the fundamental defenses like Access Control (RBAC), Multi-Factor Authentication (MFA), and Encryption.
+    - **🧠 Threat Simulation:** Interactively launch a simulated attack (like Ransomware or Phishing) to see how it unfolds.
+    - **📊 Risk Dashboard:** Become a SOC analyst. Monitor a live SIEM feed, a global attack map, and an AI-driven transaction risk engine.
+    - **🌎 Global Comparison:** Benchmark Indian banks against global leaders in the adoption of advanced security technology.
+    - **🧾 Compliance & Data Privacy:** See how banks protect PII (Personally Identifiable Information) using Data Loss Prevention (DLP) and Data Masking.
+    - **🚀 Future Banking Tech:** Look ahead at what's next, from Quantum Cryptography to AI-powered defenses.
     """)
-    st.info("Tip: Use the sidebar to jump between modules. All data shown is simulated for educational/demo purposes.")
+    st.info("All data is simulated for educational purposes. No real bank data is used.")
 
 # ----------------------------
-# Section: Network & DR Simulation
+# Section: 🏦 Bank Architecture
+# (Formerly Network & DR Simulation)
 # ----------------------------
-elif section == "Network & DR Simulation":
-    st.header("Network Topology & DR Failover Simulation")
+elif section == "🏦 Bank Architecture":
+    st.header("The Bank's "Nervous System": CBS & DR")
     st.markdown("""
-    This shows a simplified **Core Banking System (CBS)** architecture common in India.
-    - **Branches** (in different cities) connect via a private, encrypted **Wide Area Network (WAN/MPLS)**, not the public internet.
-    - They are secure "windows" into the central **Core Server (CBS)**, which holds all customer data.
-    - The **DR Site** is a real-time, mirrored copy of the Core Server, ready to take over instantly if the primary fails.
+    This shows a simplified **Core Banking System (CBS)** architecture.
+    - **Branches** connect via a private, encrypted **Wide Area Network (WAN/MPLS)**, forming a "VPN Tunnel".
+    - The **Firewall** is the gatekeeper, inspecting all traffic before it reaches the central **Core Server (CBS)**.
+    - The **DR Site** is a real-time, mirrored copy, ready to take over instantly if the primary fails.
     """)
     col1, col2 = st.columns([2,1])
 
     with col1:
-        # Create a small network graph using Plotly scatter + lines
+        # Enhanced network graph
         nodes = [
-            {"id":"Customer","x":0,"y":0},
-            {"id":"Branch_A (Mumbai)","x":1,"y":1},
-            {"id":"Branch_B (Kolkata)","x":1,"y":-1},
-            {"id":"Regional_DC (WAN/MPLS)","x":3,"y":0},
-            {"id":"Core_Server (CBS - Mumbai)","x":5,"y":0.5},
-            {"id":"Encrypted_DB","x":7,"y":0.5},
-            {"id":"DR_Site (CBS - Chennai)","x":5,"y":-1},
+            {"id":"Customer (Internet)","x":0,"y":0},
+            {"id":"Branch_A (Mumbai)","x":2,"y":1.5},
+            {"id":"Branch_B (Kolkata)","x":2,"y":-1.5},
+            {"id":"Firewall / WAF","x":4,"y":0},
+            {"id":"Core_Server (CBS - Mumbai)","x":6,"y":0.5},
+            {"id":"Encrypted_DB","x":8,"y":0.5},
+            {"id":"DR_Site (CBS - Chennai)","x":6,"y":-1.5},
         ]
-        edges = [("Customer","Branch_A (Mumbai)"),("Customer","Branch_B (Kolkata)"),("Branch_A (Mumbai)","Regional_DC (WAN/MPLS)"),("Branch_B (Kolkata)","Regional_DC (WAN/MPLS)"),
-                 ("Regional_DC (WAN/MPLS)","Core_Server (CBS - Mumbai)"),("Core_Server (CBS - Mumbai)","Encrypted_DB"),
-                 ("Regional_DC (WAN/MPLS)","DR_Site (CBS - Chennai)")] # DR Link
+        edges = [
+            ("Customer (Internet)", "Firewall / WAF"),
+            ("Branch_A (Mumbai)", "Firewall / WAF"),
+            ("Branch_B (Kolkata)", "Firewall / WAF"),
+            ("Firewall / WAF", "Core_Server (CBS - Mumbai)"),
+            ("Core_Server (CBS - Mumbai)", "Encrypted_DB"),
+            ("Firewall / WAF", "DR_Site (CBS - Chennai)") # DR Link
+        ]
         
         fig = go.Figure()
         
@@ -122,54 +127,77 @@ elif section == "Network & DR Simulation":
             a = next(n for n in nodes if n["id"]==e[0])
             b = next(n for n in nodes if n["id"]==e[1])
             line_style = dict(color="lightgray")
-            if e == ("Regional_DC (WAN/MPLS)","DR_Site (CBS - Chennai)"):
-                line_style = dict(color="red", dash="dot")
+            label = "Encrypted TLS"
+            if "Branch" in e[0]:
+                line_style = dict(color="blue", dash="dot")
+                label = "VPN Tunnel (AES-256)"
+            if e == ("Firewall / WAF", "DR_Site (CBS - Chennai)"):
+                line_style = dict(color="red", dash="dash")
+                label = "Replication Link"
+            
             fig.add_trace(go.Scatter(x=[a["x"], b["x"]], y=[a["y"], b["y"]],
-                                     mode="lines", line=line_style, hoverinfo="none"))
+                                     mode="lines", line=line_style, hoverinfo="text", text=label))
         # Add nodes
         node_x = [n["x"] for n in nodes]
         node_y = [n["y"] for n in nodes]
         node_text = [n["id"] for n in nodes]
+        node_colors = ["lightblue","lightgreen","lightgreen","red","gold","lightgray","pink"]
+        
         fig.add_trace(go.Scatter(x=node_x, y=node_y, mode="markers+text", text=node_text,
-                                 marker=dict(size=30, color=["lightblue","lightgreen","lightgreen","orange","gold","lightgray","pink"]),
+                                 marker=dict(size=35, color=node_colors, line=dict(width=2, color='Black')),
                                  textposition="top center"))
         
-        fig.update_layout(showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                          yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), height=450)
+        fig.update_layout(title="Core Banking System (CBS) Architecture", showlegend=False, 
+                          xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                          yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), height=500)
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
         st.subheader("Control Panel")
-        failover = st.button("🔴 Simulate Core Server Outage / Trigger DR Failover")
+        failover = st.button("🔴 Simulate Core Server Outage")
         
         if 'dr_active' not in st.session_state:
             st.session_state.dr_active = False
 
         if failover:
             st.session_state.dr_active = True
-            status = st.empty()
-            status.info("Core Server status: DOWN — activating Disaster Recovery (DR) site...")
-            for i in range(4):
-                status.info(f"Failover in progress... Rerouting WAN traffic... step {i+1}/4")
-                time.sleep(0.6)
-            status.success("Failover complete — All traffic routed to DR Site (Chennai). Business continuity maintained.")
+            status_placeholder = st.empty()
+            with st.spinner("Failover in progress..."):
+                status_placeholder.info("Core Server status: DOWN — activating Disaster Recovery (DR) site...")
+                time.sleep(1)
+                status_placeholder.info("Rerouting WAN traffic to DR_Site (Chennai)...")
+                time.sleep(1)
+                status_placeholder.info("DR Site (Chennai) now active. Business continuity maintained.")
+                time.sleep(0.5)
+            status_placeholder.success("Failover complete! All traffic routed to DR Site.")
             st.balloons()
         
         if st.session_state.dr_active:
              st.success("STATUS: Traffic actively routed to DR Site.")
         else:
              st.info("STATUS: Core Server (CBS - Mumbai) is UP. DR Site (Chennai) is on standby.")
+        
+        st.subheader("Simulated Firewall Log")
+        st.code(f"""
+{now()} ALLOW 203.0.113.10 -> [Firewall] (Customer Login)
+{now()} ALLOW 198.51.100.2 -> [Firewall] (Branch A VPN)
+{now()} DENY  104.28.15.12  -> [Firewall] (Port Scan)
+{now()} ALLOW 198.51.100.3 -> [Firewall] (Branch B VPN)
+{now()} DENY  172.217.14.2 -> [Firewall] (SQL Injection)
+        """)
 
-    st.markdown("---")
-    st.markdown("**Notes:** Encrypted channels (TLS/VPN) exist on each link. Failover ensures business continuity.")
 
 # ----------------------------
-# Section: RBAC, Insider Threat & DLP
+# Section: 🔒 Security Layers
+# (Formerly parts of RBAC and Encryption)
 # ----------------------------
-elif section == "RBAC, Insider Threat & DLP":
-    st.header("Role-Based Access Control (RBAC) & Insider Threat Demo")
-    st.write("Choose role and attempt operations. Watch logs for escalation and audits.")
+elif section == "🔒 Security Layers":
+    st.header("The Bank's "Digital Fortress"")
     
+    st.subheader("1. Access Control (Zero Trust Demo)")
+    st.markdown("This demonstrates **Role-Based Access Control (RBAC)**. In a Zero Trust model, *every* action is verified, even from an employee.")
+    
+    # (Moved from old RBAC section)
     role = st.selectbox("Pick a role:", ["Customer", "Teller (Employee)", "Branch Manager", "Admin / Security Officer", "HR Employee"])
     action = st.selectbox("Attempt action:", [
         "View own account details",
@@ -178,9 +206,8 @@ elif section == "RBAC, Insider Threat & DLP":
         "View system audit logs",
         "View another employee's salary"
     ])
-    st.write("🔐 Access decision:")
 
-    # Simple RBAC rules (simulated)
+    # (RBAC Logic - unchanged)
     allowed = False
     reason = ""
     if role == "Customer":
@@ -206,350 +233,354 @@ elif section == "RBAC, Insider Threat & DLP":
         st.success(f"✔️ Access GRANTED for `{role}` to `{action}`.")
     else:
         st.error(f"❌ Access DENIED. {reason or 'Policy does not allow this action.'}")
-        st.warning("An access denial generates an audit entry and may trigger an escalation review.")
+        st.warning("An access denial is logged in the SIEM for review.")
 
     st.markdown("---")
     
-    # **NEW FEATURE from lecture notes**
-    st.header("Data Loss Prevention (DLP) Simulation")
-    st.markdown("Simulate an employee trying to send an email. The DLP system scans for sensitive keywords and PII.")
-    
-    dlp_col1, dlp_col2 = st.columns(2)
-    with dlp_col1:
-        st.text_input("From:", value=f"{role.lower().replace(' ','.')}@bank.in", disabled=True)
-        dlp_to = st.text_input("To:", "example@gmail.com")
-        dlp_body = st.text_area("Email Body:", "Hi, just sending the details you asked for. The customer's PAN is ABCDE1234F and their balance is 50,000 INR.")
-    
-    if st.button("Simulate Send Email"):
-        # Simple DLP rules
-        is_external = "gmail.com" in dlp_to or "yahoo.com" in dlp_to
-        has_pii = "pan" in dlp_body.lower() or bool(re.search(r"[A-Z]{5}[0-9]{4}[A-Z]{1}", dlp_body))
+    # (NEW Feature from user's list)
+    st.subheader("2. Multi-Factor Authentication (MFA) Simulation")
+    st.markdown("Simulating a secure login process.")
+
+    mfa_cols = st.columns(3)
+    with mfa_cols[0]:
+        st.text_input("Username", "bank_manager_01")
+        st.text_input("Password", "●●●●●●●●●●", type="password")
+        if st.button("Login"):
+            st.session_state.mfa_step = 1
         
-        with dlp_col2:
-            st.subheader("DLP Analysis Result")
-            if is_external and has_pii and role in ["Teller (Employee)", "Branch Manager"]:
-                st.error("🟥 **BLOCKED: DLP Policy Violation**")
-                st.write(f"**Reason:** PII (PAN Card) detected in an email to an external domain (`{dlp_to}`).")
-                st.write(f"**Action:** Email quarantined. Alert sent to Security Officer.")
-            elif not has_pii:
-                st.success("✅ **SENT: No PII Detected**")
-                st.write("Email does not violate DLP policy.")
-            elif not is_external:
-                st.success("✅ **SENT: Internal Communication**")
-                st.write(f"Email contains PII but is internal (`{dlp_to}`). Logged for audit.")
-            else:
-                st.success("✅ **SENT: Policy Compliant**")
+    if 'mfa_step' in st.session_state:
+        with mfa_cols[1]:
+            if st.session_state.mfa_step >= 1:
+                st.text_input("Enter OTP (Sent to 91+...99)", "123456")
+                if st.button("Verify OTP"):
+                    st.session_state.mfa_step = 2
+        with mfa_cols[2]:
+             if st.session_state.mfa_step == 2:
+                st.success("✅ **Login Successful**")
+                st.caption("Authenticated via Password + OTP")
+                st.button("Logout", on_click=st.session_state.clear)
 
-# ----------------------------
-# Section: Transaction Risk Scoring
-# ----------------------------
-elif section == "Transaction Risk Scoring":
-    st.header("Transaction Stream & AI-Style Risk Scoring (Simulated)")
-    
-    col1, col2 = st.columns([3,1])
-    
-    with col1:
-        num = st.slider("Number of simulated transactions to generate", 5, 200, 30)
+    st.markdown("---")
+
+    # (NEW Feature from user's list - Crypto Lab)
+    st.subheader("3. Cryptography Lab")
+    crypto_cols = st.columns(3)
+    with crypto_cols[0]:
+        st.info("Hashing (One-Way)")
+        st.markdown("Proves **Integrity**. Cannot be reversed. Used for storing passwords.")
+        hash_input = st.text_input("Text to Hash", "MyPassword123", key="hash")
+        st.code(f"SHA-256:\n{hashlib.sha256(hash_input.encode()).hexdigest()}")
         
-        # **NEW FEATURE from lecture notes**
-        st.markdown("**AI Model Inputs (Simulated):**")
-        anomaly_check = st.checkbox("Simulate Behavioral Anomaly (e.g., unusual typing speed, mouse patterns)")
+    with crypto_cols[1]:
+        st.info("Symmetric Encryption")
+        st.markdown("Like a safe with **one key** to lock and unlock. Fast, for storing data.")
+        # (Moved from old Encryption section)
+        if "fernet_key" not in st.session_state:
+            st.session_state.fernet_key = Fernet.generate_key()
         
-        simulate_btn = st.button("Generate Transactions & Scores")
-
-    with col2:
-        st.markdown("**Risk Heuristics:**")
-        st.markdown("- Large amounts add risk\n- Unknown device add risk\n- Failed logins add risk\n- **Behavioral Anomaly adds +25 risk**")
-
-    if simulate_btn:
-        txs = []
-        for i in range(num):
-            # Pass the anomaly flag to the generator
-            # Make it random for other transactions if the box is not checked
-            is_anomaly = anomaly_check if i == 0 else (random.choice([True, False]) if anomaly_check else False)
-            txs.append(generate_transaction(i+1, behavioral_anomaly=is_anomaly))
-
-        df = pd.DataFrame(txs)
-        
-        st.dataframe(df[["tx_id","timestamp","amount","origin","failed_logins","device_known","behavioral_anomaly","risk_score","risk_level"]])
-        
-        # Plot distribution of risk scores
-        fig = px.histogram(df, x="risk_score", nbins=20, title="Risk Score Distribution", color="risk_level",
-                           color_discrete_map={"Low":"green", "Medium":"orange", "High":"red"})
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Show top risky transactions
-        st.subheader("Top High-Risk Transactions for Review")
-        st.table(df.sort_values("risk_score", ascending=False).head(10)[["tx_id","amount","risk_score","risk_level", "behavioral_anomaly"]])
-
-
-# ----------------------------
-# Section: Threat Feed & SIEM
-# ----------------------------
-elif section == "Threat Feed & SIEM":
-    st.header("Live Threat Feed (Simulated) & SIEM Dashboard")
-    st.write("Generate a feed of alerts. Each alert has severity and suggested mitigation.")
-
-    controls = st.columns([1,1,1])
-    with controls[0]:
-        gen_count = st.number_input("Number of alerts to generate", min_value=1, max_value=50, value=5)
-    with controls[1]:
-        severity_bias = st.selectbox("Bias towards severity", ["Balanced","More High", "More Low"])
-    with controls[2]:
-        gen_btn = st.button("Generate Alerts", type="primary")
-
-    def gen_alert(i):
-        sev_choice = random.choices(["Low","Medium","High"], weights=(5,3,1))[0]
-        if severity_bias == "More High":
-            sev_choice = random.choices(["Low","Medium","High"], weights=(3,3,4))[0]
-        elif severity_bias == "More Low":
-            sev_choice = random.choices(["Low","Medium","High"], weights=(6,3,1))[0]
-        
-        # **NEW FEATURE from lecture notes**
-        events = ["Failed Login","Suspicious Transfer","Anomalous Login Location","Malware Detected","Unusual API Usage", "Phishing Attempt"]
-        
-        alert = {
-            "id": f"A-{random.randint(10000,99999)}",
-            "time": now(),
-            "source_ip": f"{random.randint(1,223)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}",
-            "event": random.choice(events),
-            "severity": sev_choice
-        }
-        
-        # Suggested mitigation
-        if alert["event"] == "Phishing Attempt":
-            alert["severity"] = "High" # Phishing is always high
-            alert["details"] = "User reported email from 'security@hdfc-support.net'"
-            alert["mitigation"] = "Block domain. Scan user mailbox. Remind user to ONLY use the official 'hdfc.bank.in' domain."
-        elif alert["severity"] == "High":
-            alert["details"] = "High-value transfer to new beneficiary."
-            alert["mitigation"] = "Block IP, force password reset, escalate to SOC"
-        elif alert["severity"] == "Medium":
-            alert["details"] = "Login from new city."
-            alert["mitigation"] = "Require re-authentication, monitor for 1h"
-        else:
-            alert["details"] = "3 failed logins."
-            alert["mitigation"] = "Log and monitor"
-            
-        return alert
-
-    if gen_btn:
-        df_alerts = pd.DataFrame([gen_alert(i) for i in range(int(gen_count))])
-        
-        # summary metrics
-        counts = df_alerts["severity"].value_counts().reindex(["Low", "Medium", "High"]).fillna(0)
-        m_col1, m_col2, m_col3 = st.columns(3)
-        m_col1.metric("Total Alerts", value=len(df_alerts))
-        m_col2.metric("High Severity", value=int(counts["High"]), delta_color="inverse")
-        m_col3.metric("Medium Severity", value=int(counts["Medium"]), delta_color="inverse")
-
-        # show alert list
-        st.subheader("Alerts Triage Queue")
-        st.dataframe(df_alerts[["id", "time", "severity", "event", "source_ip", "details", "mitigation"]])
-
-        # mitigation simulation
-        st.markdown("### Mitigation Simulation")
-        for idx, row in df_alerts.iterrows():
-            if row["severity"] == "High":
-                st.error(f"**[{row['severity']}]** {row['event']} from {row['source_ip']} — **Suggested:** {row['mitigation']}")
-                if st.button(f"🛑 Mitigate {row['id']}", key=f"mit_{idx}"):
-                    st.success(f"Mitigation applied for {row['id']}: {row['mitigation']}")
-            elif row["severity"] == "Medium":
-                st.warning(f"**[{row['severity']}]** {row['event']} from {row['source_ip']} — **Suggested:** {row['mitigation']}")
-
-# ----------------------------
-# Section: Encryption & Digital Signature
-# ----------------------------
-elif section == "Encryption & Digital Signature":
-    st.header("Encryption Demo (Fernet) & RSA Digital Signature Demo")
-    st.write("Encrypt files/text with a symmetric key and sign messages with RSA keys.")
-
-    st.subheader("1) Symmetric Encryption (Fernet)")
-    st.markdown("Like a safe with **one key** to lock and unlock. Fast, great for encrypting data to store in a database.")
-    text = st.text_area("Text to encrypt (sensitive info)", "Employee Salary: ₹80,000; PAN: ABCD1234E")
-    
-    if "fernet_key" not in st.session_state:
-        st.session_state.fernet_key = Fernet.generate_key()
-        st.session_state.fernet_token = None
-
-    if st.button("Encrypt Text"):
         f = Fernet(st.session_state.fernet_key)
-        st.session_state.fernet_token = f.encrypt(text.encode())
-    
-    st.code(f"Key (keep secret): {st.session_state.fernet_key.decode()}")
-    
-    if st.session_state.fernet_token:
-        st.code(f"Encrypted (token): {st.session_state.fernet_token.decode()}")
-        if st.button("Decrypt Text"):
-            try:
-                f = Fernet(st.session_state.fernet_key)
-                dec = f.decrypt(st.session_state.fernet_token).decode()
-                st.success(f"Decrypted: {dec}")
-            except Exception as e:
-                st.error(f"Decryption failed (e.g., wrong key): {e}")
+        token = f.encrypt(b"PAN: ABCDE1234F")
+        st.code(f"Key: {st.session_state.fernet_key.decode()[:10]}...")
+        st.code(f"Encrypted: {token.decode()[:20]}...")
+        st.success(f"Decrypted: {f.decrypt(token).decode()}")
 
-    st.markdown("---")
-    st.subheader("2) RSA Digital Signature (Asymmetric)")
-    st.markdown("Like a wax seal. Uses **two keys** (Private to sign, Public to verify). Proves **Authenticity** (it's from you) and **Integrity** (it wasn't tampered with).")
+    with crypto_cols[2]:
+        st.info("Asymmetric Encryption")
+        st.markdown("Uses **two keys** (Public/Private). Proves **Authenticity**.")
+        # (Moved from old Encryption section)
+        if "rsa_private" not in st.session_state:
+            st.session_state.rsa_private = rsa.generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
+            st.session_state.rsa_public = st.session_state.rsa_private.public_key()
+        
+        st.code(f"Public Key: {st.session_state.rsa_public.public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo).decode()[:40]}...")
+        st.code(f"Private Key: [KEPT SECRET]")
+        st.success("Used for Digital Signatures!")
 
-    if "rsa_private" not in st.session_state:
-        # generate one-time per session RSA keys
-        with st.spinner("Generating 2048-bit RSA keypair..."):
-            private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
-            public_key = private_key.public_key()
-            st.session_state.rsa_private = private_key
-            st.session_state.rsa_public = public_key
-
-    message = st.text_input("Message to sign", "Approve transfer of ₹100,000 to IN12345678")
-    sign_btn = st.button("Sign Message (with Private Key)")
-    
-    if sign_btn:
-        private_key = st.session_state.rsa_private
-        signature = private_key.sign(
-            message.encode(),
-            padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
-            hashes.SHA2Tungsten()
-        )
-        st.session_state.last_signature = signature
-        st.session_state.last_message = message
-        st.success("Message signed!")
-        st.code(f"Signature (hex): {signature.hex()}")
-
-    if st.button("Verify Signature (with Public Key)"):
-        if "last_signature" not in st.session_state:
-            st.error("No signature found. Sign first.")
-        else:
-            try:
-                st.session_state.rsa_public.verify(
-                    st.session_state.last_signature,
-                    st.session_state.last_message.encode(), # Verify against the original message
-                    padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
-                    hashes.SHA256()
-                )
-                st.success("✅ **SIGNATURE VERIFIED:** Message is authentic and untampered.")
-                
-                # **NEW FEATURE from lecture notes**
-                st.warning("""
-                ⚠️ **FUTURE THREAT (Lecture Note):**
-                The RSA signature we just verified is secure today, but it can be broken by a future **Quantum Computer**. 
-                Global banks are already piloting **Post-Quantum Cryptography (PQC)** to protect high-value data for the future.
-                """)
-
-            except Exception as e:
-                st.error(f"❌ **VERIFICATION FAILED:** Signature is invalid or message was tampered with. {e}")
 
 # ----------------------------
-# Section: Global Branch Map
+# Section: 🧠 Threat Simulation
+# (NEW Section from user's list)
 # ----------------------------
-elif section == "Global Branch Map":
-    st.header("Global Bank Branch Map (Interactive)")
-    st.write("Branches, HQs and DR sites with risk overlay (simulated). Hover for details.")
+elif section == "🧠 Threat Simulation":
+    st.header("Interactive Cyber Attack Simulation")
+    st.markdown("See how common attacks unfold step-by-step. This demonstrates what the 'Risk Dashboard' is trying to detect.")
 
-    # demo data with risk levels
-    map_data = pd.DataFrame([
-        {"lat":19.0760,"lon":72.8777,"name":"Mumbai (HQ / CBS)","type":"HQ","risk":"Low","branches":120},
-        {"lat":18.5204,"lon":73.8567,"name":"Pune (DR Site)","type":"DR Site","risk":"Low","branches":0},
-        {"lat":28.6139,"lon":77.2090,"name":"Delhi Branch","type":"Branch","risk":"Medium","branches":45},
-        {"lat":13.0827,"lon":80.2707,"name":"Chennai Branch","type":"Branch","risk":"Low","branches":30},
-        {"lat":12.9716,"lon":77.5946,"name":"Bengaluru Branch","type":"Branch","risk":"Low","branches":50},
-        {"lat":40.7128,"lon":-74.0060,"name":"New York (Partner)","type":"Partner","risk":"High","branches":10},
-        {"lat":51.5074,"lon":-0.1278,"name":"London (Partner)","type":"Partner","risk":"Medium","branches":8},
-        {"lat":25.2048,"lon":55.2708,"name":"Dubai (Branch)","type":"Branch","risk":"Medium","branches":5},
-        {"lat":1.3521,"lon":103.8198,"name":"Singapore (Branch)","type":"Branch","risk":"Low","branches":6}
-    ])
+    attack_type = st.selectbox("Select an attack to simulate:", ["Phishing Attack", "Ransomware Attack"])
+    
+    if st.button(f"🚀 Launch Simulated {attack_type}"):
+        st.subheader(f"Simulating: {attack_type}")
+        
+        if attack_type == "Phishing Attack":
+            steps = [
+                ("1. **Attack:** Attacker sends a fake 'Urgent Security Alert' email from 'security@hdfc-support.net'.", "info"),
+                ("2. **Human Error:** Employee clicks the link, which leads to a fake login page.", "info"),
+                ("3. **Theft:** Employee enters their username and password. Attacker steals the credentials.", "warning"),
+                ("4. **Detection:** SIEM detects 'Anomalous Login Location' from attacker's IP. Account is flagged.", "error"),
+                ("5. **Mitigation:** SOC team is alerted. Account is locked. Bank-wide alert sent to ignore the phishing email.", "success")
+            ]
+        
+        elif attack_type == "Ransomware Attack":
+            steps = [
+                ("1. **Infection:** Employee downloads and runs a fake 'Invoice.zip' from an email.", "info"),
+                ("2. **Execution:** Malware executes in memory, bypassing old antivirus.", "info"),
+                ("3. **Lateral Movement:** Malware scans the network for connected file shares and databases.", "warning"),
+                ("4. **Encryption:** Malware begins encrypting 'Customer_DB.bak' and 'Branch_Reports.xlsx'.", "error"),
+                ("5. **Detection:** AI Anomaly Detector (UEBA) flags massive, abnormal file I/O. DLP flags encryption of PII.", "error"),
+                ("6. **Mitigation:** Automated system severs the infected computer from the network. SOC team begins recovery from DR backups.", "success")
+            ]
+        
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        
+        for i, (text, level) in enumerate(steps):
+            time.sleep(1.5)
+            progress_bar.progress((i + 1) / len(steps))
+            if level == "info":
+                status_text.info(text)
+            elif level == "warning":
+                status_text.warning(text)
+            elif level == "error":
+                status_text.error(text)
+            elif level == "success":
+                status_text.success(text)
+        
+        st.success(f"{attack_type} simulation complete.")
 
-    # color mapping
-    def color_for_risk(r):
-        return [0,200,0,160] if r=="Low" else ([255,165,0,160] if r=="Medium" else [255,0,0,160])
+# ----------------------------
+# Section: 📊 Risk Dashboard
+# (Formerly Transaction Risk & SIEM)
+# ----------------------------
+elif section == "📊 Risk Dashboard":
+    st.header("Security Operations Center (SOC) Dashboard")
+    st.markdown("This is a mock-up of a live SOC dashboard, combining a SIEM, an AI Fraud Engine, and a global threat map.")
 
-    map_data["color"] = map_data["risk"].apply(color_for_risk)
-
-    layer = pdk.Layer(
+    # (NEW Feature from user's list - Geolocation Attack Map)
+    st.subheader("Live Geolocation Attack Map (Simulated)")
+    st.markdown("Showing incoming threat signatures (e.g., port scans, SQLi attempts) in real-time.")
+    
+    # Generate random attack data
+    attack_data = pd.DataFrame({
+        "lat": [random.uniform(-50, 50) for _ in range(30)],
+        "lon": [random.uniform(-120, 120) for _ in range(30)],
+        "type": [random.choice(["SQLi", "Port Scan", "Brute Force"]) for _ in range(30)]
+    })
+    
+    attack_layer = pdk.Layer(
         "ScatterplotLayer",
-        data=map_data,
+        data=attack_data,
         get_position='[lon, lat]',
-        get_radius=50000,
-        get_color='color',
+        get_radius=200000,
+        get_color='[255, 0, 0, 160]', # Red
         pickable=True
     )
 
-    tooltip = {"html": "<b>{name}</b><br/>Type: {type}<br/>Risk: {risk}<br/>Branches: {branches}", "style": {"color":"white"}}
-    view_state = pdk.ViewState(latitude=20, longitude=30, zoom=1.7, pitch=20)
-    deck = pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip=tooltip, map_style='mapbox://styles/mapbox/light-v9')
+    tooltip = {"html": "<b>Attack Signature</b><br/>Type: {type}", "style": {"color":"white"}}
+    view_state = pdk.ViewState(latitude=20, longitude=0, zoom=1, pitch=30)
+    deck = pdk.Deck(layers=[attack_layer], initial_view_state=view_state, tooltip=tooltip, map_style='mapbox://styles/mapbox/dark-v9')
     st.pydeck_chart(deck)
 
+    st.markdown("---")
+    
+    dash_cols = st.columns(2)
+    
+    with dash_cols[0]:
+        # (Moved from old Transaction Risk Scoring section)
+        st.subheader("AI Transaction Risk Engine")
+        anomaly_check = st.checkbox("Simulate Behavioral Anomaly (e.g., unusual typing speed)")
+        
+        if st.button("Generate Transactions"):
+            txs = []
+            for i in range(20): # Generate 20 transactions
+                is_anomaly = anomaly_check if i == 0 else (random.choice([True, False]) if anomaly_check else False)
+                txs.append(generate_transaction(i+1, behavioral_anomaly=is_anomaly))
+            
+            df = pd.DataFrame(txs)
+            
+            # Show only high-risk ones
+            st.dataframe(df[df["risk_level"] == "High"][["tx_id","amount","risk_score","behavioral_anomaly"]])
+            
+            # Plot distribution
+            fig = px.histogram(df, x="risk_score", nbins=20, title="Risk Score Distribution", color="risk_level",
+                               color_discrete_map={"Low":"green", "Medium":"orange", "High":"red"})
+            st.plotly_chart(fig, use_container_width=True)
+
+    with dash_cols[1]:
+        # (Moved from old Threat Feed & SIEM section)
+        st.subheader("Live SIEM Alert Feed")
+        
+        if st.button("Fetch New Alerts"):
+            st.session_state.alerts = [gen_alert(i) for i in range(5)]
+        
+        if 'alerts' in st.session_state:
+            for alert in st.session_state.alerts:
+                if alert["severity"] == "High":
+                    st.error(f"**[{alert['severity']}]** {alert['event']} from {alert['source_ip']}\n> {alert['mitigation']}")
+                elif alert["severity"] == "Medium":
+                    st.warning(f"**[{alert['severity']}]** {alert['event']} from {alert['source_ip']}\n> {alert['mitigation']}")
+                else:
+                    st.info(f"**[{alert['severity']}]** {alert['event']} from {alert['source_ip']}\n> {alert['mitigation']}")
+
+    # (Helper function for SIEM)
+    def gen_alert(i):
+        events = ["Failed Login","Suspicious Transfer","Anomalous Login Location","Malware Detected","Phishing Attempt"]
+        alert = {
+            "id": f"A-{random.randint(10000,99999)}", "time": now(),
+            "source_ip": f"{random.randint(1_223)}.{random.randint(0_255)}.{random.randint(0_255)}.{random.randint(0_255)}",
+            "event": random.choice(events), "severity": random.choices(["Low","Medium","High"], weights=(5,3,2))[0]
+        }
+        if alert["event"] == "Phishing Attempt":
+            alert["severity"] = "High"
+            alert["mitigation"] = "Block domain. Remind user ONLY use official 'sbi.bank.in' domain."
+        elif alert["severity"] == "High":
+            alert["mitigation"] = "Block IP, force password reset, escalate to SOC"
+        elif alert["severity"] == "Medium":
+            alert["mitigation"] = "Require re-authentication, monitor for 1h"
+        else:
+            alert["mitigation"] = "Log and monitor"
+        return alert
+
 # ----------------------------
-# Section: Global Security Comparison
+# Section: 🌎 Global Comparison
+# (Formerly Global Security Comparison)
 # ----------------------------
-elif section == "Global Security Comparison":
-    st.header("Global Security Comparison (Lecture Data)")
+elif section == "🌎 Global Comparison":
+    st.header("Global Security Posture Comparison")
     st.markdown("Comparing (illustrative) adoption of next-gen security features.")
 
-    # **UPDATED DATA from lecture notes**
-    df = pd.DataFrame({
-        "Feature": ["Strong 2FA (OTP/PIN)", "Next-Gen Biometrics (Behavioral/Voice)", "Post-Quantum Cryptography (PQC) Pilots", "Advanced AI Fraud Detection (UEBA)", "Breach & Attack Simulation (BAS)"],
-        "Typical Indian Bank": [10, 4, 2, 6, 3],
-        "Global Best Practice (e.g., JPMorgan)": [10, 8, 7, 9, 8],
-    })
+    # (NEW, upgraded data from user's list)
+    data = {
+        "Feature": ["Encryption Standards", "MFA (Multi-Factor Auth)", "Cloud Infrastructure", "AI for Fraud Detection", "Zero Trust Framework", "Cybersecurity Budget (% of IT)"],
+        "SBI (India)": ["AES-128, SSL", "OTP + PIN", "Partial Private Cloud", "Limited", "Partial", 7],
+        "JPMorgan (US)": ["AES-256, Quantum R&D", "OTP + Biometric + Token", "Hybrid (AWS + Azure)", "Advanced ML", "Fully Implemented", 18],
+        "DBS (Singapore)": ["AES-256, TLS 1.3", "Face + OTP", "Full Cloud-Native", "Deep Learning", "Fully Implemented", 18],
+        "HSBC (UK)": ["AES-256, TLS 1.3", "OTP + Biometric", "Hybrid Cloud", "AI-driven AML", "In progress", 16],
+    }
+    df_compare = pd.DataFrame(data)
     
-    st.markdown("### Feature Adoption Score (1-10)")
-    
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        name='Typical Indian Bank',
-        x=df["Feature"], y=df["Typical Indian Bank"],
-        text=df["Typical Indian Bank"], textposition='auto'
-    ))
-    fig.add_trace(go.Bar(
-        name='Global Best Practice',
-        x=df["Feature"], y=df["Global Best Practice (e.g., JPMorgan)"],
-        text=df["Global Best Practice (e.g., JPMorgan)"], textposition='auto'
-    ))
+    st.subheader("Feature Comparison")
+    st.dataframe(df_compare.set_index("Feature"))
 
-    fig.update_layout(barmode='group', xaxis_tickangle=-25, height=500,
-                      legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+    st.subheader("Cybersecurity Budget (% of IT spend)")
+    # Prepare data for plotting (numeric only)
+    plot_data = {
+        "Bank": ["SBI (India)", "JPMorgan (US)", "DBS (Singapore)", "HSBC (UK)"],
+        "Budget": [7, 18, 18, 16]
+    }
+    df_plot = pd.DataFrame(plot_data)
+    
+    fig = px.bar(df_plot, x="Bank", y="Budget", title="Cybersecurity Budget (% of IT Spend)",
+                 color="Bank", text_auto=True)
+    fig.update_layout(height=450)
     st.plotly_chart(fig, use_container_width=True)
     
     st.markdown("""
     **Key Takeaways:**
     - **Baseline is Strong:** Indian banks are world-class at foundational security (like 2FA/OTP).
-    - **Unique Strength:** India is a leader in fighting phishing with the new, mandatory **`.bank.in`** domain, a proactive step many countries have not taken.
-    - **Future Frontiers:** Global leaders are investing heavily in *proactive* and *future-looking* tech:
-        - **Behavioral Biometrics:** Authenticating you based on *how* you act, not just what you know.
-        - **PQC:** Preparing for the quantum computing threat today.
-        - **BAS:** Moving from periodic "Red Team" tests to continuous, automated 24/7 attack simulation.
+    - **Unique Strength:** India is a leader in fighting phishing with the new, mandatory **`.bank.in`** domain.
+    - **Investment Gap:** Global leaders invest a significantly higher percentage of their IT budget into cybersecurity.
+    - **Future Frontiers:** Global banks are more aggressively adopting Cloud-Native architecture, Zero Trust, and advanced AI, which enables faster, more scalable security.
     """)
 
 # ----------------------------
-# Section: Download / Docs
+# Section: 🧾 Compliance & Data Privacy
+# (NEW Section, contains old DLP)
 # ----------------------------
-elif section == "Download / Docs":
-    st.header("Download & Documentation")
-    st.write("You can download simulated data and a short README for your presentation.")
+elif section == "🧾 Compliance & Data Privacy":
+    st.header("Protecting Customer & Employee Data")
+    st.markdown("How banks handle PII (Personally Identifiable Information) and comply with regulations.")
+
+    comp_cols = st.columns(2)
     
-    if st.button("Generate sample transactions CSV"):
-        txs = [generate_transaction(i+1, random.choice([True,False])) for i in range(100)]
-        df = pd.DataFrame(txs)
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("Download transactions.csv", csv, file_name="simulated_transactions.csv", mime="text/csv")
+    with comp_cols[0]:
+        # (Moved from old RBAC section)
+        st.subheader("1. Data Loss Prevention (DLP) Simulation")
+        st.markdown("Simulate an employee trying to email sensitive data.")
         
-    readme_text = """
-Secure Banking System Visualizer (Enhanced)
-===========================================
-This Streamlit app is a teaching/demo tool that simulates advanced cybersecurity concepts for a banking environment.
+        dlp_role = st.selectbox("Role", ["Teller (Employee)", "Branch Manager"], key="dlp_role")
+        dlp_to = st.text_input("To:", "my-friend@gmail.com")
+        dlp_body = st.text_area("Email Body:", "Hi, the customer's PAN is ABCDE1234F.")
+        
+        if st.button("Simulate Send Email"):
+            is_external = "gmail.com" in dlp_to
+            has_pii = "pan" in dlp_body.lower() or bool(re.search(r"[A-Z]{5}[0-9]{4}[A-Z]{1}", dlp_body))
+            
+            if is_external and has_pii:
+                st.error("🟥 **BLOCKED: DLP Policy Violation**")
+                st.write(f"**Reason:** PII (PAN Card) detected in an email to an external domain.")
+                st.write(f"**Action:** Email quarantined. Alert sent to Security Officer.")
+            else:
+                st.success("✅ **SENT: Policy Compliant**")
 
-Modules:
-- Network & DR: Simulates a Core Banking System (CBS) and WAN failover.
-- RBAC & DLP: Demos Role-Based Access Control and a Data Loss Prevention (DLP) engine that blocks PII leaks.
-- Risk Scoring: Simulates an AI fraud engine, including behavioral anomaly detection.
-- SIEM: A mock threat feed that now detects phishing attempts and promotes the '.bank.in' mitigation.
-- Encryption: Demos RSA signatures and includes a warning about the future quantum computing threat.
-- Global Comparison: Benchmarks Indian vs. Global security feature adoption.
+    with comp_cols[1]:
+        # (NEW Feature from user's list)
+        st.subheader("2. Employee Data Masking")
+        st.markdown("Protecting employee PII from unauthorized internal access.")
+        
+        # Sample employee data
+        emp_data = {
+            "Employee_ID": ["E1001", "E1002", "E1003"],
+            "Name": ["Ramesh Kumar", "Priya Sharma", "Anil Gupta"],
+            "Aadhaar": ["...9876", "...1234", "...5678"],
+            "Salary_LPA": ["8.0", "12.5", "9.2"]
+        }
+        df_emp = pd.DataFrame(emp_data)
+        
+        st.markdown("**View as Teller (Masked):**")
+        st.dataframe(df_emp.style.hide(subset=["Salary_LPA"], axis=1))
+        
+        st.markdown("**View as HR Employee (Unmasked):**")
+        st.dataframe(df_emp)
 
-All data is simulated and intended for educational use.
-    """
-    st.download_button("Download README", readme_text, file_name="README.txt")
-    st.markdown("**Deployment Tips:** Include `requirements.txt` in your repo. Deploy on Streamlit Cloud (share.streamlit.io).")
+    st.markdown("---")
+    st.subheader("Key Regulatory Frameworks")
+    st.markdown("""
+    Banks don't just implement security for good practice; it's the law.
+    - **RBI IT Framework (India):** Mandates strict controls on cybersecurity, data localization, and IT governance.
+    - **GDPR (Europe):** Governs data protection and privacy for all individual citizens of the EU. Affects global banks.
+    - **PCI DSS (Global):** Payment Card Industry Data Security Standard. Required for *any* entity that handles credit card data.
+    - **ISO 27001 (Global):** The international standard for an Information Security Management System (ISMS).
+    """)
+
+# ----------------------------
+# Section: 🚀 Future Banking Tech
+# (NEW Section from user's list)
+# ----------------------------
+elif section == "🚀 Future Banking Tech":
+    st.header("The Future of Banking Security")
+    st.markdown("These are the next-generation technologies banks are actively researching and deploying.")
+    
+    st.warning("""
+    ⚠️ **The Quantum Threat:**
+    The RSA encryption we use today is secure because classical computers cannot factor large numbers quickly. 
+    A future **Quantum Computer** *will* be able to break it, rendering most of our current encryption obsolete. 
+    Banks are now in a race to become **"Quantum-Safe"**.
+    """)
+    
+    f_cols = st.columns(3)
+    
+    with f_cols[0]:
+        st.info("🧬 **Quantum-Safe Cryptography (PQC)**")
+        st.markdown("New encryption algorithms (like CRYSTALS-Kyber) that are resistant to attacks from *both* classical and quantum computers. This is the future of data protection.")
+        
+    with f_cols[1]:
+        st.info("🧠 **AI-Powered Behavioral Biometrics**")
+        st.markdown("Moving beyond just passwords and OTPs. This technology authenticates you based on *how you act*—your typing speed, the angle you hold your phone, your mouse patterns. It can detect an imposter *even if they have your password*.")
+
+    with f_cols[2]:
+        st.info("🤖 **Autonomous Threat Hunting**")
+        st.markdown("Using AI agents that don't just wait for alerts (like a SIEM), but *proactively* hunt for threats inside the network 24/7. They can find and neutralize threats *before* a human analyst even sees them.")
+
+    with f_cols[0]:
+        st.info("🪪 **Decentralized Identity (DID)**")
+        st.markdown("Using blockchain, this would allow *you* to own your identity data, not the bank. You would grant the bank permission to verify specific facts (e.g., "Are you over 18?") without handing over your full ID.")
+
+    with f_cols[1]:
+        st.info("🔗 **Confidential Computing**")
+        st.markdown("A new technology that encrypts data *while it is in use* (i.e., in the computer's memory/RAM). This protects data from even cloud providers or system administrators, enabling secure multi-party AI on sensitive data.")
+
+    with f_cols[2]:
+        st.info("🛡️ **Breach & Attack Simulation (BAS)**")
+        st.markdown("Instead of periodic "Red Team" tests, this is an automated platform that *continuously* runs simulated attacks against the bank's live defenses 24/7 to find holes before real attackers do.")
 
 # ----------------------------
 # End
