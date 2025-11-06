@@ -580,7 +580,7 @@ elif section == "🚀 Future Banking Tech":
 
     with f_cols[2]:
         st.info("🛡️ **Breach & Attack Simulation (BAS)**")
-        st.markdown("Instead of periodic "Red Team" tests, this is an automated platform that *continuously* runs simulated attacks against the bank's live defenses 24/7 to find holes before real attackers do.")
+        st.markdown("""Instead of periodic "Red Team" tests, this is an automated platform that *continuously* runs simulated attacks against the bank's live defenses 24/7 to find holes before real attackers do.""")
 
 # ----------------------------
 # End
