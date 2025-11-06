@@ -192,7 +192,7 @@ elif section == "🏦 Bank Architecture":
 # (Formerly parts of RBAC and Encryption)
 # ----------------------------
 elif section == "🔒 Security Layers":
-    st.header("The Bank's "Digital Fortress"")
+    st.header('The Bank\'s "Digital Fortress"')
     
     st.subheader("1. Access Control (Zero Trust Demo)")
     st.markdown("This demonstrates **Role-Based Access Control (RBAC)**. In a Zero Trust model, *every* action is verified, even from an employee.")
