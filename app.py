@@ -31,9 +31,7 @@ section = st.sidebar.selectbox("Navigate", [
     "Transaction Risk Scoring",
     "Threat Feed & SIEM",
     "Encryption & Digital Signature",
-    "Global Branch Map",
     "Global Security Comparison",
-    "Download / Docs"
 ])
 
 # ----------------------------
